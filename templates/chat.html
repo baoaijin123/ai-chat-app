@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}AI Chat{% endblock %}
+{% block content %}
+<div class="chat-app">
+    <!-- 侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="btn btn-primary btn-block" id="newChatBtn">+ 新建对话</button>
+        </div>
+        <div class="sidebar-sessions" id="sessionList">
+            {% for s in sessions %}
+            <div class="session-item" data-id="{{ s.id }}" onclick="loadSession({{ s.id }})">
+                <span class="session-title">{{ s.title }}</span>
+                <button class="session-delete" onclick="event.stopPropagation(); deleteSession({{ s.id }})">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="sidebar-footer">
+            <span class="user-info">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="logout-link">退出</a>
+        </div>
+    </aside>
+
+    <!-- 主对话区域 -->
+    <main class="chat-main">
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea id="messageInput" placeholder="输入消息... (Enter发送, Shift+Enter换行)" rows="1"></textarea>
+                <button class="btn-send" id="sendBtn" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </main>
+</div>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
