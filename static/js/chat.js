@@ -24,6 +24,17 @@ inputEl.addEventListener('keydown', function (e) {
 
 newChatBtn.addEventListener('click', createSession);
 
+// 点击聊天主区域自动收起侧边栏
+document.querySelector('.chat-main').addEventListener('click', function () {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const isMobile = window.innerWidth <= 768;
+    const isOpen = isMobile ? sidebar.classList.contains('open') : !sidebar.classList.contains('collapsed');
+    if (isOpen) {
+        toggleSidebar();
+    }
+});
+
 // Create a new chat session
 async function createSession() {
     const resp = await fetch('/api/sessions', { method: 'POST' });
@@ -178,7 +189,18 @@ function scrollToBottom() {
 }
 
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+        sidebar.classList.toggle('open');
+    } else {
+        sidebar.classList.toggle('collapsed');
+    }
+
+    const hidden = isMobile ? !sidebar.classList.contains('open') : sidebar.classList.contains('collapsed');
+    toggleBtn.style.display = hidden ? 'block' : 'none';
 }
 
 function previewAvatar(src) {
@@ -214,5 +236,5 @@ function formatMarkdown(text) {
 
 // Show empty state on load
 if (!currentSessionId) {
-    messagesEl.innerHTML = '<div class="empty-state">选择或创建一个对话开始聊天</div>';
+    messagesEl.innerHTML = '<div class="empty-state">想年年了吗，快来关心俺吧OWO</div>';
 }

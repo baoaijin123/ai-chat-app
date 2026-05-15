@@ -17,13 +17,26 @@
         </div>
         <div class="sidebar-footer">
             <span class="user-info">{{ current_user.username }}</span>
-            <a href="{{ url_for('auth.logout') }}" class="logout-link">退出</a>
+            <div class="sidebar-footer-right">
+                <a href="{{ url_for('auth.logout') }}" class="logout-link">退出</a>
+                <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="收起侧边栏">&#9664;</button>
+            </div>
         </div>
     </aside>
 
     <!-- 主对话区域 -->
     <main class="chat-main">
-        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">&#9776;</button>
+        <div class="chat-bg">
+            <img class="bg-deco bg-1" src="/static/bg1.png">
+            <img class="bg-deco bg-2" src="/static/bg2.png">
+            <img class="bg-deco bg-3" src="/static/bg3.png">
+            <img class="bg-deco bg-4" src="/static/bg1.png">
+            <img class="bg-deco bg-5" src="/static/bg2.png">
+            <img class="bg-deco bg-6" src="/static/bg3.png">
+            <img class="bg-deco bg-7" src="/static/bg1.png">
+            <img class="bg-deco bg-8" src="/static/bg2.png">
+            <img class="bg-deco bg-9" src="/static/bg3.png">
+        </div>
         <div class="messages" id="messages"></div>
         <div class="input-area">
             <div class="input-wrapper">
@@ -32,6 +45,7 @@
             </div>
         </div>
     </main>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="event.stopPropagation(); toggleSidebar()">&#9776;</button>
 </div>
 <!-- 头像预览弹窗 -->
 <div class="avatar-modal" id="avatarModal" onclick="closeAvatarPreview()">
