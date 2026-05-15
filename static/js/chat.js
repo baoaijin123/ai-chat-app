@@ -126,7 +126,12 @@ async function sendMessage() {
                     contentEl.textContent = 'Error: ' + data.error;
                     break;
                 }
-                if (data.done) break;
+                if (data.done) continue;
+                if (data.photo) {
+                    contentEl.innerHTML += `<br><img class="cat-photo" src="${data.photo}" alt="年年" onclick="previewAvatar('${data.photo}')">`;
+                    scrollToBottom();
+                    continue;
+                }
                 fullText += data.content;
                 contentEl.innerHTML = formatMarkdown(fullText);
                 scrollToBottom();
@@ -149,9 +154,11 @@ async function sendMessage() {
 function appendMessage(role, content) {
     const div = document.createElement('div');
     div.className = `message ${role}`;
-    const avatarText = role === 'user' ? 'U' : 'AI';
+    const avatarHtml = role === 'user'
+        ? '<div class="message-avatar avatar-img" onclick="previewAvatar(\'/static/user-avatar.jpg\')"><img src="/static/user-avatar.jpg" alt="User"></div>'
+        : '<div class="message-avatar avatar-img" onclick="previewAvatar(\'/static/ai-avatar.jpg\')"><img src="/static/ai-avatar.jpg" alt="AI"></div>';
     div.innerHTML = `
-        <div class="message-avatar">${avatarText}</div>
+        ${avatarHtml}
         <div class="message-content">${role === 'user' ? escapeHtml(content) : content}</div>
     `;
     messagesEl.appendChild(div);
@@ -172,6 +179,15 @@ function scrollToBottom() {
 
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
+}
+
+function previewAvatar(src) {
+    document.getElementById('avatarPreviewImg').src = src;
+    document.getElementById('avatarModal').classList.add('active');
+}
+
+function closeAvatarPreview() {
+    document.getElementById('avatarModal').classList.remove('active');
 }
 
 function escapeHtml(text) {

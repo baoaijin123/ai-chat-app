@@ -4,6 +4,32 @@
     box-sizing: border-box;
 }
 
+/* Avatar Preview Modal */
+.avatar-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.avatar-modal.active {
+    display: flex;
+}
+
+.avatar-modal img {
+    max-width: 80vmin;
+    max-height: 80vmin;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: #f7f7f8;
@@ -276,9 +302,9 @@ body {
 }
 
 .message-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -295,6 +321,26 @@ body {
 .message.assistant .message-avatar {
     background: #10a37f;
     color: #fff;
+}
+
+.avatar-img {
+    background: none !important;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.avatar-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+}
+
+.message.user .avatar-img img {
+    object-position: center -15px;
 }
 
 .message-content {
@@ -333,6 +379,20 @@ body {
     background: none;
     padding: 0;
     color: inherit;
+}
+
+/* Cat Photo */
+.cat-photo {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.cat-photo:hover {
+    transform: scale(1.02);
 }
 
 /* Empty State */

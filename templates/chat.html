@@ -33,5 +33,9 @@
         </div>
     </main>
 </div>
+<!-- 头像预览弹窗 -->
+<div class="avatar-modal" id="avatarModal" onclick="closeAvatarPreview()">
+    <img id="avatarPreviewImg" src="" alt="avatar">
+</div>
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 {% endblock %}

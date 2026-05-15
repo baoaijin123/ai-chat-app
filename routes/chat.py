@@ -1,11 +1,18 @@
 import json
+import os
+import random
 
-from flask import Blueprint, Response, current_user, jsonify, login_required, redirect, render_template, request
+from flask import Blueprint, Response, current_app, jsonify, redirect, render_template, request
+from flask_login import current_user, login_required
 from sqlalchemy import desc
 
-from app import db
+from extensions import db
 from models.chat import ChatMessage, ChatSession
 from services.zhipu import chat_stream
+
+CAT_STATUS_KEYWORDS = ['在干嘛', '在做什么', '干嘛呢', '在干什么', '现在在干嘛', '在忙什么']
+CAT_STATUSES = ['发呆', '观察', '撒娇', '睡觉', '玩耍']
+CAT_PHOTOS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'cat_photos')
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -82,36 +89,53 @@ def send_message(session_id):
     if not user_content:
         return jsonify({'error': '消息不能为空'}), 400
 
-    # 保存用户消息
     user_msg = ChatMessage(session_id=session_id, role='user', content=user_content)
     db.session.add(user_msg)
 
-    # 更新会话标题（首条消息的前20字）
     if session.title == '新对话':
         session.title = user_content[:20] + ('...' if len(user_content) > 20 else '')
 
     db.session.commit()
 
-    # 构建对话历史
     history = session.messages.order_by(ChatMessage.created_at).all()
     api_messages = [{'role': m.role, 'content': m.content} for m in history]
+
+    api_key = current_app.config['ZHIPU_API_KEY']
+    app = current_app._get_current_object()
+
+    # 判断是否问在干嘛，提前选好状态和对应照片
+    ask_status = any(kw in user_content for kw in CAT_STATUS_KEYWORDS)
+    chosen_status = random.choice(CAT_STATUSES) if ask_status else None
+    chosen_photo = None
+    if chosen_status:
+        status_dir = os.path.join(CAT_PHOTOS_DIR, chosen_status)
+        photos = [f for f in os.listdir(status_dir) if f.endswith(('.jpg', '.png', '.gif'))]
+        if photos:
+            chosen_photo = f'/static/cat_photos/{chosen_status}/{random.choice(photos)}'
+
+    extra_system = ''
+    if chosen_status:
+        extra_system = f'用户在问你现在在干嘛，你现在正在{chosen_status}，请用可爱的语气告诉用户你正在{chosen_status}。'
 
     def generate():
         full_reply = ''
         try:
-            for chunk in chat_stream(api_messages):
+            for chunk in chat_stream(api_key, api_messages, extra_system):
                 full_reply += chunk
                 yield f"data: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
             return
 
-        # 保存AI回复
-        assistant_msg = ChatMessage(session_id=session_id, role='assistant', content=full_reply)
-        db.session.add(assistant_msg)
-        db.session.commit()
+        with app.app_context():
+            assistant_msg = ChatMessage(session_id=session_id, role='assistant', content=full_reply)
+            db.session.add(assistant_msg)
+            db.session.commit()
 
         yield f"data: {json.dumps({'done': True}, ensure_ascii=False)}\n\n"
+
+        if chosen_photo:
+            yield f"data: {json.dumps({'photo': chosen_photo}, ensure_ascii=False)}\n\n"
 
     return Response(generate(), mimetype='text/event-stream',
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})

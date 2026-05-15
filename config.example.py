@@ -2,7 +2,7 @@ import os
 
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'change-this-to-a-random-secret-key-in-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'change-this-to-a-random-secret-key')
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL',
         'mysql+pymysql://root:your_password@localhost/ai_chat?charset=utf8mb4'
